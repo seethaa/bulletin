@@ -3,18 +3,25 @@ package com.codepath.bulletin.models;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by seetha on 7/26/16.
  */
-public class Article implements Serializable{
+@Parcel
+public class Article{
     private static final String THUMBNAIL_URL_PREFIX = "http://www.nytimes.com/";
     String webURL;
     String headline;
     String thumbNail;
+
+
+    //empty constructor needed by Parceler Library
+    public Article(){
+
+    }
 
     public String getWebURL() {
         return webURL;
