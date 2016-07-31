@@ -1,12 +1,16 @@
 package com.codepath.bulletin;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -31,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcels;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
@@ -157,7 +162,7 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                fetchFilteredArticles(newText);
+//                fetchFilteredArticles(newText);
                 return false;
             }
         });
@@ -165,9 +170,26 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
     }
 
     private void refreshItems() {
-        mArticles.clear();
-        mArticleArrayAdapter.notifyDataSetChanged();
-        fetchFilteredArticles(mSearchQuery);
+
+        if (isNetworkAvailable() && isOnline()) {
+            mArticles.clear();
+            mArticleArrayAdapter.notifyDataSetChanged();
+            fetchFilteredArticles(mSearchQuery);
+        }
+        else{
+            callNetworkDialog();
+
+//            new AlertDialog.Builder(getApplicationContext())
+//                    .setTitle("No Connection Available")
+//                    .setMessage("Please check your network connection!")
+//                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            // continue with delete
+//                        }
+//                    })
+//                    .setIcon(android.R.drawable.ic_dialog_alert)
+//                    .show();
+        }
     }
 
 
@@ -196,15 +218,23 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
 
     }
 
-    /**
-     * On click handler for search button
-     * @param view
-     */
-//    public void onArticleSearch(View view) {
-//        String query = etQuery.getText().toString();
-//        Toast.makeText(this, "Searching for " + query, Toast.LENGTH_LONG).show();
-//        fetchAllArticles(query);
-//    }
+    private Boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+    }
+
+    public boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        } catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+        return false;
+    }
 
     /**
      * Method to fetch updated data and refresh the listview. This method creates a new NYTimesAPIClient and
@@ -212,80 +242,102 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
      *
      */
     private void fetchFilteredArticles(String query) {
-        //newsDesk is comma separated list of news desk values
-        mNYTimesAPIClient = new NYTimesAPIClient();
+
+        if(isOnline() && isNetworkAvailable()) {
+            //newsDesk is comma separated list of news desk values
+            mNYTimesAPIClient = new NYTimesAPIClient();
 //        String query = Filter.getInstance().getFilteredQuery();
-        mNYTimesAPIClient.getArticlesOnFilteredSearch(query, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("DEBUG", response.toString());
-                JSONArray articleJsonResults = null;
-                try {
-                    //get all results
-                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+            mNYTimesAPIClient.getArticlesOnFilteredSearch(query, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     Log.d("DEBUG", response.toString());
-                    //mArticles.clear(); //clear existing items from list
-                    mArticleArrayAdapter.addAll(Article.fromJSONArray(articleJsonResults)); //add all items to list
-                    Log.d("DEBUG", mArticles.toString());
-                    //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
+                    JSONArray articleJsonResults = null;
+                    try {
+                        //get all results
+                        articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+                        Log.d("DEBUG", response.toString());
+                        //mArticles.clear(); //clear existing items from list
+                        mArticleArrayAdapter.addAll(Article.fromJSONArray(articleJsonResults)); //add all items to list
+                        Log.d("DEBUG", mArticles.toString());
+                        //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
 //                    printAllMovies(mMoviesArrayList); //debugging purposes
 //                    mSwipeContainer.setRefreshing(false);
 
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                Log.d("DEBUG", "Failed to fetch articles on string query");
-            }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                    Log.d("DEBUG", "Failed to fetch articles on string query");
+                }
 
-        });
+            });
+        }
+        else{
+            callNetworkDialog();
+        }
 
     }
 
-    private void fetchFilteredArticlesByPage(String query, int page) {
-        //newsDesk is comma separated list of news desk values
-        mNYTimesAPIClient = new NYTimesAPIClient();
-//        String query = Filter.getInstance().getFilteredQuery();
-        mNYTimesAPIClient.getArticlesOnFilteredSearchByPage(query, page, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("DEBUG", response.toString());
-                JSONArray articleJsonResults = null;
-                try {
-                    //get all results
-                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    Log.d("DEBUG", response.toString());
-                    //mArticles.clear(); //clear existing items from list
-                    ArrayList<Article> newArticles = Article.fromJSONArray(articleJsonResults);
+    private void callNetworkDialog() {
 
-                    for (int i=0; i<newArticles.size(); i++){
-                        mArticles.add(newArticles.get(i));
-                    }
-                    mArticleArrayAdapter.notifyDataSetChanged(); //add all items to list
-                    Log.d("DEBUG", mArticles.toString());
-                    //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
+        AlertDialog.Builder alert = new AlertDialog.Builder(SearchActivity.this);
+        alert.setTitle("No Connection Available");
+        alert.setMessage("Please check your network connection, and try again!");
+        alert.setPositiveButton("OK",null);
+        alert.show();
+    }
+
+    private void fetchFilteredArticlesByPage(String query, int page) {
+
+        if(isOnline() && isNetworkAvailable()) {
+
+            //newsDesk is comma separated list of news desk values
+            mNYTimesAPIClient = new NYTimesAPIClient();
+//        String query = Filter.getInstance().getFilteredQuery();
+            mNYTimesAPIClient.getArticlesOnFilteredSearchByPage(query, page, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d("DEBUG", response.toString());
+                    JSONArray articleJsonResults = null;
+                    try {
+                        //get all results
+                        articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+                        Log.d("DEBUG", response.toString());
+                        //mArticles.clear(); //clear existing items from list
+                        ArrayList<Article> newArticles = Article.fromJSONArray(articleJsonResults);
+
+                        for (int i = 0; i < newArticles.size(); i++) {
+                            mArticles.add(newArticles.get(i));
+                        }
+                        mArticleArrayAdapter.notifyDataSetChanged(); //add all items to list
+                        Log.d("DEBUG", mArticles.toString());
+                        //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
 //                    printAllMovies(mMoviesArrayList); //debugging purposes
 //                    mSwipeContainer.setRefreshing(false);
 
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                super.onFailure(statusCode, headers, throwable, errorResponse);
-                Log.d("DEBUG", "Failed to fetch articles on string query with page number");
-            }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                    Log.d("DEBUG", "Failed to fetch articles on string query with page number");
+                }
 
-        });
+            });
+        }
+        else{
+            callNetworkDialog();
+        }
 
 
     }
