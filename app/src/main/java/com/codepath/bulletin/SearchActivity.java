@@ -42,7 +42,7 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
     NYTimesAPIClient mNYTimesAPIClient;
     ArrayList<Article> mArticles;
     ArticleArrayAdapter mArticleArrayAdapter;
-//    static Filter mFilter;
+    String mSearchQuery;
 
      static String BEGIN_DATE_STR = "beginDate";
      static String SORT_BY_STR = "sortBy";
@@ -58,18 +58,6 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         setContentView(R.layout.activity_search);
 
         setupViews();
-
-//        SharedPreferences mSettings = getApplication().getSharedPreferences("Filters", 0);
-//        SharedPreferences.Editor editor = mSettings.edit();
-//        editor.putString("test", "tester1");
-//        editor.putString(SearchActivity.BEGIN_DATE_STR, "Sat, July 28");
-//        editor.putString(SearchActivity.SORT_BY_STR, "Oldest");
-//        editor.putBoolean(SearchActivity.NEWSDESK_ARTS_STR, false);
-//        editor.putBoolean(SearchActivity.NEWSDESK_FASHION_STYLE_STR, false);
-//        editor.putBoolean(SearchActivity.NEWSDESK_SPORTS_STR, false);
-//
-//        editor.apply();
-
 
     }
 
@@ -100,6 +88,9 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
             }
         });
 
+        fetchFilteredArticles(mSearchQuery);
+
+
     }
 
     @Override
@@ -127,38 +118,35 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // perform query here
-                fetchAllArticles(query);
 
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
-                searchView.clearFocus();
+                //check if there are any filters set:
+
+                    // clear existing view and perform query here
+
+                    mArticles.clear();
+                    mArticleArrayAdapter.notifyDataSetChanged();
+                    mSearchQuery = query;
+                    fetchFilteredArticles(mSearchQuery);
+//                    System.out.println("DEBUGGY TIME LOTSA TIMES");
+
+                    // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                    // see https://code.google.com/p/android/issues/detail?id=24599
+                    searchView.clearFocus();
+
 
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                fetchFilteredArticles(newText);
                 return false;
             }
         });
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void showEditDialog() {
-        FragmentManager fm = getSupportFragmentManager();
-        FilterDialogFragment editFilterDialogFragment = newInstance();
-        editFilterDialogFragment.show(fm, "dialog_filter");
-    }
-    /**
-     * Used for creating FilterDialogFragment and binding arguments
-     *
-     * @return
-     */
-    static FilterDialogFragment newInstance() {
-        FilterDialogFragment f = new FilterDialogFragment();
-        return f;
-    }
+
 
     /**
      * Called when dialogfragment is finished
@@ -189,26 +177,26 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
      * On click handler for search button
      * @param view
      */
-    public void onArticleSearch(View view) {
-        String query = etQuery.getText().toString();
-        Toast.makeText(this, "Searching for " + query, Toast.LENGTH_LONG).show();
-        fetchAllArticles(query);
-    }
+//    public void onArticleSearch(View view) {
+//        String query = etQuery.getText().toString();
+//        Toast.makeText(this, "Searching for " + query, Toast.LENGTH_LONG).show();
+//        fetchAllArticles(query);
+//    }
 
     /**
      * Method to fetch updated data and refresh the listview. This method creates a new NYTimesAPIClient and
      * makes HTTPRequest to get a list of currently playing movies.
      *
      */
-    private void fetchFilteredArticles(String query, String beginDate, String sortBy, String newsDesk) {
+    private void fetchFilteredArticles(String query) {
         //newsDesk is comma separated list of news desk values
         mNYTimesAPIClient = new NYTimesAPIClient();
-        mNYTimesAPIClient.getArticlesOnSearch(query, new JsonHttpResponseHandler() {
+//        String query = Filter.getInstance().getFilteredQuery();
+        mNYTimesAPIClient.getArticlesOnFilteredSearch(query, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("DEBUG", response.toString());
                 JSONArray articleJsonResults = null;
-
                 try {
                     //get all results
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
@@ -236,35 +224,35 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
          * makes HTTPRequest to get a list of currently playing movies.
          *
          */
-    private void fetchAllArticles(String query) {
-        mNYTimesAPIClient = new NYTimesAPIClient();
-        mNYTimesAPIClient.getArticlesOnSearch(query, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("DEBUG", response.toString());
-                JSONArray articleJsonResults = null;
-
-                try {
-                    //get all results
-                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    Log.d("DEBUG", response.toString());
-                    //mArticles.clear(); //clear existing items from list
-                    mArticleArrayAdapter.addAll(Article.fromJSONArray(articleJsonResults)); //add all items to list
-                    Log.d("DEBUG", mArticles.toString());
-                    //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
-//                    printAllMovies(mMoviesArrayList); //debugging purposes
-//                    mSwipeContainer.setRefreshing(false);
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        });
-
-
-    }
+//    private void fetchAllArticles(String query) {
+//        mNYTimesAPIClient = new NYTimesAPIClient();
+//        mNYTimesAPIClient.getTestArticles( new JsonHttpResponseHandler() {
+//            @Override
+//            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                Log.d("DEBUG", response.toString());
+//                JSONArray articleJsonResults = null;
+//
+//                try {
+//                    //get all results
+//                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+//                    Log.d("DEBUG", response.toString());
+//                    //mArticles.clear(); //clear existing items from list
+//                    mArticleArrayAdapter.addAll(Article.fromJSONArray(articleJsonResults)); //add all items to list
+//                    Log.d("DEBUG", mArticles.toString());
+//                    //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
+////                    printAllMovies(mMoviesArrayList); //debugging purposes
+////                    mSwipeContainer.setRefreshing(false);
+//
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//        });
+//
+//
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -277,6 +265,21 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showEditDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        FilterDialogFragment editFilterDialogFragment = newInstance();
+        editFilterDialogFragment.show(fm, "dialog_filter");
+    }
+    /**
+     * Used for creating FilterDialogFragment and binding arguments
+     *
+     * @return
+     */
+    static FilterDialogFragment newInstance() {
+        FilterDialogFragment f = new FilterDialogFragment();
+        return f;
     }
 
 }

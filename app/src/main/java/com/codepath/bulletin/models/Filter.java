@@ -1,11 +1,12 @@
 package com.codepath.bulletin.models;
 
-import org.parceler.Parcel;
+import java.text.SimpleDateFormat;
+
+import cz.msebera.android.httpclient.ParseException;
 
 /**
  * Created by seetha on 7/30/16.
  */
-@Parcel
 public class Filter{
 
     public String beginDate;
@@ -13,18 +14,25 @@ public class Filter{
     public boolean newsdeskArts;
     public boolean newsdeskFashionStyle;
     public boolean newsdeskSports;
+    public boolean isFirstCall = true;
+
+    public boolean isFirstCall() {
+        return isFirstCall;
+    }
+
 
     private static Filter instance = null;
 
     public static synchronized Filter getInstance() {
         if (instance == null ) {
-            instance = new Filter();
+            instance = new Filter(false);
 
         }
         return instance;
     }
 
-    protected Filter(){
+    protected Filter(boolean isFirstCall){
+        isFirstCall = false;
         //empty constructor
     }
 
@@ -71,6 +79,70 @@ public class Filter{
         this.newsdeskSports = newsdeskSports;
     }
 
+    public String getFilteredQuery(String searchText) {
+        //begin_date=20160112&sort=oldest&fq=news_desk:(%22Education%22%20%22Health%22)&api-key=227c750bb7714fc39ef1559ef1bd8329
+        String filteredQuery = "";
+
+        if (searchText!=null) {
+            filteredQuery = filteredQuery + "&q=" + searchText;
+        }
+        if (beginDate!=null){
+            filteredQuery = filteredQuery + "&begin_date=" + getBeginDateFormatted();
+        }
+        if (sortBy!=null){
+            filteredQuery = filteredQuery + "&sort=" + getSortByFormatted();
+        }
+        if (isNewsdeskArts() || isNewsdeskFashionStyle() || isNewsdeskSports()){
+            filteredQuery = filteredQuery + "&fq=news_desk:" + getNewsDeskFormatted();
+        }
+
+        System.out.println("DEBUGGY FILTERED QUERY: " + filteredQuery);
+        return filteredQuery;
+    }
+
+    public String getBeginDateFormatted() {
+       String reformattedDate="yyyyMMdd";
+        System.out.println("DEBUGGY date original: " + getBeginDate());
+
+        if (getBeginDate()!=null) {
+            try {
+                SimpleDateFormat oldFormat = new SimpleDateFormat("MM-dd-yy");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+
+                reformattedDate = formatter.format(oldFormat.parse(getBeginDate()));
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+            System.out.println("DEBUGGY date: " + reformattedDate);
+
+        }
+        return reformattedDate;
+    }
+
+    public String getSortByFormatted() {
+        if (sortBy !=null){
+            return sortBy.toLowerCase();
+        }
+        return "oldest";
+    }
+
+    public String getNewsDeskFormatted() {
+        String formattedNewsDesk = "(";
+
+        if (isNewsdeskArts()){
+            formattedNewsDesk = formattedNewsDesk + "%22Arts%22";
+        }
+        if (isNewsdeskFashionStyle()){
+            formattedNewsDesk = formattedNewsDesk + "%20%22Fashion%20&%20Style%22";
+        }
+        if (isNewsdeskSports()){
+            formattedNewsDesk = formattedNewsDesk + "%20%22Sports%22";
+        }
+        return formattedNewsDesk + ")";
+    }
 
 
 //    public Filter(String beginDate, String sortBy, String newsDeskValues, boolean newsdeskArts, boolean newsdeskFashionStyle, boolean newsdeskSports){

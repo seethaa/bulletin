@@ -44,7 +44,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
 
     String mSpinnerText;
 
-    String  mDueDateText;
+    String mBeginDateText;
 
 
     Calendar mCalendar;
@@ -68,21 +68,6 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
 
         setupViews(root);
 
-//        System.out.println("DEBUGGY: " + mFilter.getBeginDate());
-//        SharedPreferences settings = getActivity().getApplicationContext().getSharedPreferences("Filters", 0);
-//
-////
-//         beginDate = settings.getString(SearchActivity.BEGIN_DATE_STR, "missing");
-//               System.out.println("DEBUGGY: " + beginDate );
-//
-//         sortBy = settings.getString(SearchActivity.SORT_BY_STR, "missing");
-//         newsdeskArts = settings.getBoolean(SearchActivity.NEWSDESK_ARTS_STR, false);
-//         newsdeskFashionStyle = settings.getBoolean(SearchActivity.NEWSDESK_FASHION_STYLE_STR, false);
-//        newsdeskSports = settings.getBoolean(SearchActivity.NEWSDESK_SPORTS_STR, false);
-//
-//        System.out.println("DEBUGGY task printing test: " + " sort by " + sortBy + " " +newsdeskArts );
-
-
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         return dialog;
     }
@@ -105,10 +90,9 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
     }
 
     private void setupViews(View layout) {
+        //get list of shared preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-
         beginDate = settings.getString(SearchActivity.BEGIN_DATE_STR, "missing");
-
         sortBy = settings.getString(SearchActivity.SORT_BY_STR, "missing");
         newsdeskArts = settings.getBoolean(SearchActivity.NEWSDESK_ARTS_STR, false);
         newsdeskFashionStyle = settings.getBoolean(SearchActivity.NEWSDESK_FASHION_STYLE_STR, false);
@@ -116,30 +100,23 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
 
         System.out.println("DEBUGGY: " + beginDate + " " + sortBy + newsdeskArts + " " + newsdeskFashionStyle + " " + newsdeskSports);
 
-        mEditTextDueDate = (EditText) layout
-                .findViewById(R.id.etBeginDate);
-
-        mEditTextDueDate.setText(beginDate);
-
-
+        //get references to views
+        mEditTextDueDate = (EditText) layout.findViewById(R.id.etBeginDate);
         cbArts = (CheckBox) layout.findViewById(R.id.cbArts);
         cbFashionStyle = (CheckBox) layout.findViewById(R.id.cbFashionStyle);
         cbSports = (CheckBox) layout.findViewById(R.id.cbSports);
+        mSpinnerSortBy = (Spinner) layout.findViewById(R.id.spinnerSort);
 
+        //populate views with values from shared preferences
+        mEditTextDueDate.setText(beginDate);
         cbArts.setChecked(newsdeskArts);
         cbFashionStyle.setChecked(newsdeskFashionStyle);
         cbSports.setChecked(newsdeskSports);
 
-        //get spinner
-        mSpinnerSortBy = (Spinner) layout
-                .findViewById(R.id.spinnerSort);
-
-
-        //set spinner selection from values from SharedPreferences
-        if (sortBy == null){
+        //set spinner selection
+        if (sortBy == null) {
             mSpinnerSortBy.setSelection(0);
-        }
-        else{
+        } else {
             if (sortBy.equals("Oldest")) {
                 mSpinnerSortBy.setSelection(0);
             } else if (sortBy.equals("Newest")) {
@@ -152,18 +129,12 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
      * Sets up listener for News desk checkbox options
      */
     private void setNewsDeskListener() {
-        cbArts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
+        cbArts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-                if (isChecked)
-                {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
                     newsdeskArts = true;
-                    System.out.println("DEBUGGY: arts checked" );
-
-                }
-                else{
+                } else {
                     newsdeskArts = false;
                 }
                 Filter.getInstance().setNewsdeskArts(newsdeskArts);
@@ -171,18 +142,12 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
             }
         });
 
-        cbFashionStyle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
+        cbFashionStyle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-                if (isChecked)
-                {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
                     newsdeskFashionStyle = true;
-                    System.out.println("DEBUGGY: fash checked" );
-
-                }
-                else{
+                } else {
                     newsdeskFashionStyle = false;
                 }
                 Filter.getInstance().setNewsdeskFashionStyle(newsdeskFashionStyle);
@@ -190,18 +155,12 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
             }
         });
 
-        cbSports.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
+        cbSports.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-                if (isChecked)
-                {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
                     newsdeskSports = true;
-                    System.out.println("DEBUGGY: sports checked" );
-
-                }
-                else{
+                } else {
                     newsdeskSports = false;
                 }
                 Filter.getInstance().setNewsdeskSports(newsdeskSports);
@@ -210,6 +169,9 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
         });
     }
 
+    /**
+     * Sets up listener for Sort By Spinner
+     */
     private void setSortByListener() {
 
         //spinner change listener
@@ -228,7 +190,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
     }
 
     /**
-     * Takes care of setting listeners for all UI components
+     * Sets up listener for Date field
      */
     private void setBeginDateListener() {
         mEditTextDueDate.setOnClickListener(new OnClickListener() {
@@ -247,17 +209,13 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
                         mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
                         //update date in edittext
-                        String myFormat = "EEE, MMMM dd";
+                        String myFormat = "MM-dd-yy";
                         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
-                        mDueDateText = sdf.format(mCalendar.getTime());
-                        System.out.println("task printing date set: " + mDueDateText.toString());
-                        mEditTextDueDate.setText(mDueDateText);
+                        mBeginDateText = sdf.format(mCalendar.getTime());
+                        mEditTextDueDate.setText(mBeginDateText);
 
-                        Filter.getInstance().setBeginDate(mDueDateText);
-
-//                        savedBeginDate = mDueDateText;
-//                        mSettings.edit().putString(SearchActivity.BEGIN_DATE_STR, mDueDateText);
+                        Filter.getInstance().setBeginDate(mBeginDateText);
 
 
                     }
@@ -275,68 +233,28 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
             }
         });
 
-
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnSave:
-                saveTask();
+                saveFilter();
                 break;
-//            case R.id.cbArts:
-//                artsChecked();
-//                break;
-//            case R.id.cbFashionStyle:
-//                newsdeskFashionStyle = true;
-//                break;
-//            case R.id.cbSports:
-//                newsdeskSports = true;
-//                break;
 
         }
     }
 
 
     /**
-     * Saves updated task to database and dismisses fragment to go back to MainActivity
+     * Dismisses fragment to go back to SearchActivity
      */
-    public void saveTask() {
-
-
-        //String taskText = mEditTextTaskText.getText().toString();
-
-        //modify current task's values
-//        mCurrentTask.taskText = taskText;
-//        mCurrentTask.priority = mPriority;
-//        mCurrentTask.dueDate = mDueDateText;
-//        mCurrentTask.completed = false;
-//        mCurrentTask.classification = mClassificationText;
-//
-//
-//        // Save the task object to the table
-//        mCurrentTask.save();
-
-//        mSettings = getActivity().getSharedPreferences("Settings", 0);
-
-//        SharedPreferences.Editor e = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
-//        e.putString(SearchActivity.BEGIN_DATE_STR, beginDate);
-//        e.commit();
-
-//        mSettings.edit().putString(SearchActivity.BEGIN_DATE_STR, beginDate);
-//        editor.putString(SearchActivity.SORT_BY_STR, sortBy);
-//        editor.putBoolean(SearchActivity.NEWSDESK_ARTS_STR, newsdeskArts);
-//        editor.putBoolean(SearchActivity.NEWSDESK_FASHION_STYLE_STR, newsdeskFashionStyle);
-//        editor.putBoolean(SearchActivity.NEWSDESK_SPORTS_STR, newsdeskSports);
-//        editor.commit();
-//        editor.apply();
+    public void saveFilter() {
 
         //dismiss current fragment
         SetFilterDialogListener activity = (SetFilterDialogListener) getActivity();
         activity.onFinishSetFilterDialog();
         this.dismiss();
-
-
     }
 
     /**
