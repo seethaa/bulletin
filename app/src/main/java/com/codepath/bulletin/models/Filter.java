@@ -79,7 +79,7 @@ public class Filter{
         this.newsdeskSports = newsdeskSports;
     }
 
-    public String getFilteredQuery(String searchText) {
+    public String getFilteredQuery(String searchText, int page) {
         //begin_date=20160112&sort=oldest&fq=news_desk:(%22Education%22%20%22Health%22)&api-key=227c750bb7714fc39ef1559ef1bd8329
         String filteredQuery = "";
 
@@ -94,6 +94,10 @@ public class Filter{
         }
         if (isNewsdeskArts() || isNewsdeskFashionStyle() || isNewsdeskSports()){
             filteredQuery = filteredQuery + "&fq=news_desk:" + getNewsDeskFormatted();
+        }
+        //add page num
+        if (page!= 0) {
+            filteredQuery = filteredQuery + "&page=" + page;
         }
 
         System.out.println("DEBUGGY FILTERED QUERY: " + filteredQuery);

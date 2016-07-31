@@ -88,8 +88,29 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
             }
         });
 
+        gvResults.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to your AdapterView
+                customLoadMoreDataFromApi(page);
+                // or customLoadMoreDataFromApi(totalItemsCount);
+                return true; // ONLY if more data is actually being loaded; false otherwise.
+            }
+        });
+
         fetchFilteredArticles(mSearchQuery);
 
+
+    }
+
+    private void customLoadMoreDataFromApi(int page) {
+        // This method probably sends out a network request and appends new data items to your adapter.
+        // Use the offset value and add it as a parameter to your API request to retrieve paginated data.
+        // Deserialize API response and then construct new objects to append to the adapter
+
+        System.out.println("DEBUGGY PAGE " + page);
+        fetchFilteredArticlesByPage(mSearchQuery,page);
 
     }
 
@@ -122,11 +143,8 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
                 //check if there are any filters set:
 
                     // clear existing view and perform query here
-
-                    mArticles.clear();
-                    mArticleArrayAdapter.notifyDataSetChanged();
                     mSearchQuery = query;
-                    fetchFilteredArticles(mSearchQuery);
+                   refreshItems();
 //                    System.out.println("DEBUGGY TIME LOTSA TIMES");
 
                     // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
@@ -146,6 +164,11 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void refreshItems() {
+        mArticles.clear();
+        mArticleArrayAdapter.notifyDataSetChanged();
+        fetchFilteredArticles(mSearchQuery);
+    }
 
 
     /**
@@ -169,7 +192,7 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         editor.commit();
 
         //perform new search and refresh items in the list
-
+        refreshItems();
 
     }
 
@@ -214,11 +237,58 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
                 }
             }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                Log.d("DEBUG", "Failed to fetch articles on string query");
+            }
+
+        });
+
+    }
+
+    private void fetchFilteredArticlesByPage(String query, int page) {
+        //newsDesk is comma separated list of news desk values
+        mNYTimesAPIClient = new NYTimesAPIClient();
+//        String query = Filter.getInstance().getFilteredQuery();
+        mNYTimesAPIClient.getArticlesOnFilteredSearchByPage(query, page, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("DEBUG", response.toString());
+                JSONArray articleJsonResults = null;
+                try {
+                    //get all results
+                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
+                    Log.d("DEBUG", response.toString());
+                    //mArticles.clear(); //clear existing items from list
+                    ArrayList<Article> newArticles = Article.fromJSONArray(articleJsonResults);
+
+                    for (int i=0; i<newArticles.size(); i++){
+                        mArticles.add(newArticles.get(i));
+                    }
+                    mArticleArrayAdapter.notifyDataSetChanged(); //add all items to list
+                    Log.d("DEBUG", mArticles.toString());
+                    //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
+//                    printAllMovies(mMoviesArrayList); //debugging purposes
+//                    mSwipeContainer.setRefreshing(false);
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                Log.d("DEBUG", "Failed to fetch articles on string query with page number");
+            }
+
         });
 
 
     }
-
         /**
          * Method to fetch updated data and refresh the listview. This method creates a new NYTimesAPIClient and
          * makes HTTPRequest to get a list of currently playing movies.
@@ -282,4 +352,8 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         return f;
     }
 
+//    @Override
+//    public boolean onLoadMore(int page, int totalItemsCount) {
+//        return false;
+//    }
 }

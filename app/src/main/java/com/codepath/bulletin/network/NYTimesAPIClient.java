@@ -45,11 +45,19 @@ public class NYTimesAPIClient {
 //        params.put("begin_date", "20160112");
 //        params.put("sort", "oldest");
 //        params.put("fq", "(%22Education%22%20%22Health%22)");
-        String URL = getAPIUrl(Filter.getInstance().getFilteredQuery(searchText));
-        System.out.println("DEBUGGY HTTP URL: " + URL);
+        String URL = getAPIUrl(Filter.getInstance().getFilteredQuery(searchText,0));
+        System.out.println("DEBUGGY HTTP URL 1: " + URL);
         mClient.get(URL, handler);
 //        mClient.get(API_BASE_URL, params, handler);
     }
+
+    public void getArticlesOnFilteredSearchByPage(final String searchText,final int page, JsonHttpResponseHandler handler) {
+
+        String URL = getAPIUrl(Filter.getInstance().getFilteredQuery(searchText,page));
+        System.out.println("DEBUGGY HTTP URL 2: " + URL);
+        mClient.get(URL, handler);
+    }
+
 
     /**
      * @TODO: Method for accessing the search API
