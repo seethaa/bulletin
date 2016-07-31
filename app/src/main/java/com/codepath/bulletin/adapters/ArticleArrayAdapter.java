@@ -47,9 +47,9 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         //populate thumbnail image
         //remotely download image in the background
         String thumbnail = article.getThumbNail();
-        //check if thumbnail is empty since NYTimesAPI soemtimes returns ""
+        //check if thumbnail is empty since NYTimesAPI sometimes returns ""
         if (!TextUtils.isEmpty(thumbnail)){
-            Picasso.with(getContext()).load(thumbnail).into(imageView);
+            Picasso.with(getContext()).load(thumbnail).fit().centerCrop().placeholder(R.drawable.nytlogovert).into(imageView);
 
         }
         return convertView;
