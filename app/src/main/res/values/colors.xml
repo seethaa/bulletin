@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="bulletinYellow">#f8bf30</color>
     <color name="bulletinLightGray">#4f4f4f</color>
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
+
 </resources>

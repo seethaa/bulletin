@@ -2,7 +2,7 @@
 
 **Bulletin** is an android app that allows a user to search for articles on web using simple filters. The app utilizes [New York Times Search API](http://developer.nytimes.com/docs/read/article_search_api_v2).
 
-Time spent: **X** hours spent in total
+Time spent: **7** hours spent in total
 
 ## User Stories
 
@@ -10,11 +10,11 @@ The following **required** functionality is completed:
 
 * [x] User can **search for news article** by specifying a query and launching a search. Search displays a grid of image results from the New York Times Search API.
 * [ ] User can click on "settings" which allows selection of **advanced search options** to filter results
-* [ ] User can configure advanced search filters such as:
-  * [ ] Begin Date (using a date picker)
-  * [ ] News desk values (Arts, Fashion & Style, Sports)
-  * [ ] Sort order (oldest or newest)
-* [ ] Subsequent searches have any filters applied to the search results
+* [x] User can configure advanced search filters such as:
+  * [x] Begin Date (using a date picker)
+  * [x] News desk values (Arts, Fashion & Style, Sports)
+  * [x] Sort order (oldest or newest)
+* [x] Subsequent searches have any filters applied to the search results
 * [x] User can tap on any image in results to see the full text of article **full-screen**
 * [ ] User can **scroll down to see more articles**. The maximum number of articles is limited by the API search.
 
@@ -41,7 +41,7 @@ The following **bonus** features are implemented:
 
 The following **additional** features are implemented:
 
-* [ ] List anything else that you can get done to improve the app functionality!
+* [x] Used SharedPreferences to persist filter preferences across sessions.
 
 ## Video Walkthrough
 
@@ -59,10 +59,11 @@ Describe any challenges encountered while building the app.
 
 - [Android Async HTTP](https://github.com/loopj/android-async-http) - Simple asynchronous HTTP requests with JSON parsing
 - [Picasso](http://square.github.io/picasso/) - Image loading and caching library for Android
+- [SugarORM] ()
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2016 Seetha Annamraju
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

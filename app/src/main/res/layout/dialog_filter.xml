@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!--due date -->
+        <TextView
+            android:id="@+id/askDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/begin_date" />
+
+        <EditText
+            android:id="@+id/etBeginDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:ems="10"
+            android:onClick="bringUpDatePicker" />
+
+
+        <!-- Sort By -->
+        <TextView
+            android:id="@+id/askClassification"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_order" />
+
+        <Spinner
+            android:id="@+id/spinnerSort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/sortby_choices"
+            android:prompt="@string/sortby_prompt" />
+
+
+        <!-- News Desk Values -->
+        <TextView
+            android:id="@+id/askNewsDeskValues"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_height="wrap_content"
+            android:text="@string/newsdesk_values" />
+
+
+
+            <CheckBox
+                android:id="@+id/cbArts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/arts" />
+
+            <CheckBox
+                android:id="@+id/cbFashionStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fashion_style" />
+
+            <CheckBox
+                android:id="@+id/cbSports"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_height="wrap_content"
+                android:text="@string/sports" />
+
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="103dp"
+            android:layout_marginBottom="5dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:background="@color/colorPrimaryDark"
+            android:drawableLeft="@drawable/simplifysave2"
+            android:padding="10dp"
+            android:paddingRight="20dp"
+            android:text="Save"
+            android:textColor="@color/white" />
+
+
+    </LinearLayout>
+
+    <!-- <Button
+         android:id="@+id/btnDelete"
+         android:layout_width="100dp"
+         android:padding="10dp"
+
+         android:paddingLeft="20dp"
+         android:layout_height="wrap_content"
+         android:textColor="@color/deleteRed"
+         android:text="Delete"
+         android:drawableLeft="@mipmap/simplifytrash"
+         android:layout_alignParentRight="true"
+         android:layout_alignParentEnd="true"
+         android:layout_alignParentBottom="true" /> -->
+
+</RelativeLayout>
