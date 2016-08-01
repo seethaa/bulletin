@@ -19,7 +19,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * ArticleArrayAdapter handles populating Gridview handling Article items
+ * ArticleArrayAdapter handles populating and updating Gridview with Article items
  * Created by seetha on 7/26/16.
  */
 public class ArticleArrayAdapter extends ArrayAdapter<Article> {
@@ -29,15 +29,18 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
     }
 
     static class ViewHolder {
-        @BindView(R.id.ivImage) ImageView imageView;
-        @BindView(R.id.tvTitle) TextView tvTitle;
+        @BindView(R.id.ivImage)
+        ImageView imageView;
+        @BindView(R.id.tvTitle)
+        TextView tvTitle;
 
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
     }
 
-    @Override public View getView(int position, View view, ViewGroup parent) {
+    @Override
+    public View getView(int position, View view, ViewGroup parent) {
         Article article = this.getItem(position);
 
         ViewHolder holder;
@@ -62,8 +65,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         if (!TextUtils.isEmpty(thumbnail)) {
             Glide.with(getContext()).load(thumbnail).centerCrop().placeholder(R.drawable.nytlogooriginal).into(holder.imageView);
 
-        }
-        else{
+        } else {
             Glide.with(getContext()).load(R.drawable.nytlogooriginal).centerCrop().placeholder(R.drawable.nytlogooriginal).into(holder.imageView);
 
         }

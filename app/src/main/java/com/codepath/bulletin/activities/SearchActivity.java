@@ -43,6 +43,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
+/**
+ * SearchActivity uses NYTimes API to get a list of articles. Uses search query to filter articles.
+ */
 public class SearchActivity extends AppCompatActivity implements FilterDialogFragment.SetFilterDialogListener {
     static final String BEGIN_DATE_STR = "beginDate";
     static final String SORT_BY_STR = "sortBy";

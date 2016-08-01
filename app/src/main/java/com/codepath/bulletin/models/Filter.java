@@ -94,7 +94,6 @@ public class Filter{
             filteredQuery = filteredQuery + "&page=" + page;
         }
 
-        System.out.println("DEBUGGY FILTERED QUERY: " + filteredQuery);
         return filteredQuery;
     }
 
@@ -104,7 +103,6 @@ public class Filter{
      */
     public String getBeginDateFormatted() {
        String reformattedDate="yyyyMMdd";
-        System.out.println("DEBUGGY date original: " + getBeginDate());
 
         if (getBeginDate()!=null) {
             try {
@@ -118,7 +116,6 @@ public class Filter{
             } catch (java.text.ParseException e) {
                 e.printStackTrace();
             }
-            System.out.println("DEBUGGY date: " + reformattedDate);
 
         }
         return reformattedDate;
