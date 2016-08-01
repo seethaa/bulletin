@@ -9,9 +9,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.codepath.bulletin.R;
 import com.codepath.bulletin.models.Article;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         String thumbnail = article.getThumbNail();
         //check if thumbnail is empty since NYTimesAPI sometimes returns ""
         if (!TextUtils.isEmpty(thumbnail)) {
-            Picasso.with(getContext()).load(thumbnail).fit().centerCrop().placeholder(R.drawable.nytlogovert).into(imageView);
+            Glide.with(getContext()).load(thumbnail).centerCrop().placeholder(R.drawable.nytlogovert).into(imageView);
 
         }
         return convertView;
