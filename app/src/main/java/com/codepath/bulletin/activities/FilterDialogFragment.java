@@ -31,6 +31,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
  * Shows a DialogFragment with Filter feature. Allows user to edit begin date, sort by, and select
  * news desk options. Filter ptions are saved and persist through sessions on save.
@@ -38,12 +42,13 @@ import java.util.Locale;
 public class FilterDialogFragment extends DialogFragment implements OnClickListener {
 
     /* Layout components */
-    private EditText mEditTextBeginDate;
-    private Button mButtonSave;
-    private Spinner mSpinnerSortBy;
-    private CheckBox mCheckBoxArts;
-    private CheckBox mCheckBoxFashionStyle;
-    private CheckBox mCheckBoxSports;
+    @BindView(R.id.etBeginDate) EditText mEditTextBeginDate;
+    @BindView(R.id.btnSave) Button mButtonSave;
+    @BindView(R.id.spinnerSort) Spinner mSpinnerSortBy;
+    @BindView(R.id.cbArts) CheckBox mCheckBoxArts;
+    @BindView(R.id.cbFashionStyle) CheckBox mCheckBoxFashionStyle;
+    @BindView(R.id.cbSports) CheckBox mCheckBoxSports;
+
     private String mSpinnerText;
     private String mBeginDateText;
     private Calendar mCalendar;
@@ -56,12 +61,16 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
     private boolean newsdeskFashionStyle;
     private boolean newsdeskSports;
 
+    private Unbinder unbinder;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         RelativeLayout root = (RelativeLayout) inflater.inflate(R.layout.dialog_filter, null);
+
+        unbinder = ButterKnife.bind(this, root);
 
         setupViews(root);
 
@@ -72,6 +81,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.dialog_filter, null);
+        unbinder = ButterKnife.bind(this, layout);
 
         //set up the views
         setupViews(layout);
@@ -80,10 +90,17 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
         setBeginDateListener();
         setSortByListener();
         setNewsDeskListener();
-        mButtonSave = (Button) layout.findViewById(R.id.btnSave);
+//        mButtonSave = (Button) layout.findViewById(R.id.btnSave);
         mButtonSave.setOnClickListener(this);
 
         return layout;
+    }
+
+    // When binding a fragment in onCreateView, set the views to null in onDestroyView.
+    // ButterKnife returns an Unbinder on the initial binding that has an unbind method to do this automatically.
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     /**
@@ -104,11 +121,11 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
         System.out.println("DEBUGGY: " + beginDate + " " + sortBy + " " + newsdeskArts + " " + newsdeskFashionStyle + " " + newsdeskSports);
 
         //get references to views
-        mEditTextBeginDate = (EditText) layout.findViewById(R.id.etBeginDate);
-        mCheckBoxArts = (CheckBox) layout.findViewById(R.id.cbArts);
-        mCheckBoxFashionStyle = (CheckBox) layout.findViewById(R.id.cbFashionStyle);
-        mCheckBoxSports = (CheckBox) layout.findViewById(R.id.cbSports);
-        mSpinnerSortBy = (Spinner) layout.findViewById(R.id.spinnerSort);
+//        mEditTextBeginDate = (EditText) layout.findViewById(R.id.etBeginDate);
+//        mCheckBoxArts = (CheckBox) layout.findViewById(R.id.cbArts);
+//        mCheckBoxFashionStyle = (CheckBox) layout.findViewById(R.id.cbFashionStyle);
+//        mCheckBoxSports = (CheckBox) layout.findViewById(R.id.cbSports);
+//        mSpinnerSortBy = (Spinner) layout.findViewById(R.id.spinnerSort);
 
         //populate views with values from shared preferences
         mEditTextBeginDate.setText(beginDate);

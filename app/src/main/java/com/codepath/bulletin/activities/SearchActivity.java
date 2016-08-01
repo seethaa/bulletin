@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -25,12 +24,12 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.codepath.bulletin.utils.EndlessScrollListener;
 import com.codepath.bulletin.R;
 import com.codepath.bulletin.adapters.ArticleArrayAdapter;
 import com.codepath.bulletin.models.Article;
 import com.codepath.bulletin.models.Filter;
 import com.codepath.bulletin.network.NYTimesAPIClient;
+import com.codepath.bulletin.utils.EndlessScrollListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -41,6 +40,8 @@ import org.parceler.Parcels;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity implements FilterDialogFragment.SetFilterDialogListener {
@@ -50,18 +51,18 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
     static final String NEWSDESK_FASHION_STYLE_STR = "fashionStyle";
     static final String NEWSDESK_SPORTS_STR = "sports";
 
-    private GridView mGridViewResults;
+    @BindView(R.id.gvResults) GridView mGridViewResults;
     private NYTimesAPIClient mNYTimesAPIClient;
     private ArrayList<Article> mArticles;
     private ArticleArrayAdapter mArticleArrayAdapter;
     private String mSearchQuery;
-    private SwipeRefreshLayout mSwipeContainer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        ButterKnife.bind(this);
 
         setupViews();
 
@@ -71,7 +72,6 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
      * Lays out all views, attaches listener to gridview, and sets arrayadapter.
      */
     private void setupViews() {
-        mGridViewResults = (GridView) findViewById(R.id.gvResults);
         mArticles = new ArrayList<>();
         mArticleArrayAdapter = new ArticleArrayAdapter(this, mArticles);
         mGridViewResults.setAdapter(mArticleArrayAdapter);
@@ -332,10 +332,6 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
                         }
                         mArticleArrayAdapter.notifyDataSetChanged(); //add all items to list
                         Log.d("DEBUG", mArticles.toString());
-                        //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
-//                    printAllMovies(mMoviesArrayList); //debugging purposes
-//                    mSwipeContainer.setRefreshing(false);
-
 
                     } catch (JSONException e) {
                         e.printStackTrace();

@@ -30,10 +30,10 @@ public class ArticleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
 
-        mArticle = (Article) Parcels.unwrap(getIntent().getParcelableExtra("mArticle"));
+        mArticle = (Article) Parcels.unwrap(getIntent().getParcelableExtra("article"));
 
         WebView webView = (WebView) findViewById(R.id.wvArticle);
-
+        System.out.println("DEBUGGY print article: " + mArticle.getHeadline() + " " + mArticle.getWebURL());
         webView.setWebViewClient(new WebViewClient(){
 
             @Override
