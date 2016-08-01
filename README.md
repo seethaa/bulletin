@@ -50,12 +50,16 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-Screenshots:
-<img src='http://i.imgur.com/9qwwMj6.png' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+**Screenshots**
 
-<img src='http://i.imgur.com/3cm6bfi.png' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
-Walkthrough URL: http://i.imgur.com/0KR7n2D.gif
+
+<img src='http://i.imgur.com/9qwwMj6.png' title='Video Walkthrough' width='300' alt='Video Walkthrough' />
+
+<img src='http://i.imgur.com/3cm6bfi.png' title='Video Walkthrough' width='300' alt='Video Walkthrough' />
+
+**Walkthrough URL**
+http://i.imgur.com/0KR7n2D.gif
 
 <img src='http://i.imgur.com/0KR7n2D.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
