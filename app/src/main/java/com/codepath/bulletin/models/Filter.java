@@ -5,35 +5,25 @@ import java.text.SimpleDateFormat;
 import cz.msebera.android.httpclient.ParseException;
 
 /**
+ * Filter is a singleton that handles all Filter options that a user selects for searching articles.
  * Created by seetha on 7/30/16.
  */
 public class Filter{
+
+    private static Filter sInstance = null;
 
     public String beginDate;
     public String sortBy;
     public boolean newsdeskArts;
     public boolean newsdeskFashionStyle;
     public boolean newsdeskSports;
-    public boolean isFirstCall = true;
-
-    public boolean isFirstCall() {
-        return isFirstCall;
-    }
-
-
-    private static Filter instance = null;
 
     public static synchronized Filter getInstance() {
-        if (instance == null ) {
-            instance = new Filter(false);
+        if (sInstance == null ) {
+            sInstance = new Filter();
 
         }
-        return instance;
-    }
-
-    protected Filter(boolean isFirstCall){
-        isFirstCall = false;
-        //empty constructor
+        return sInstance;
     }
 
     public String getBeginDate() {
@@ -65,8 +55,6 @@ public class Filter{
         this.sortBy = sortBy;
     }
 
-
-
     public void setNewsdeskArts(boolean newsdeskArts) {
         this.newsdeskArts = newsdeskArts;
     }
@@ -79,11 +67,17 @@ public class Filter{
         this.newsdeskSports = newsdeskSports;
     }
 
+    /**
+     * Creates filter query based on arguments and exsting filter options in SharedPreferences
+     * @param searchText
+     * @param page
+     * @return
+     */
     public String getFilteredQuery(String searchText, int page) {
         //begin_date=20160112&sort=oldest&fq=news_desk:(%22Education%22%20%22Health%22)&api-key=227c750bb7714fc39ef1559ef1bd8329
         String filteredQuery = "";
 
-        if (searchText!=null) {
+        if (searchText!=null && !searchText.isEmpty()) {
             filteredQuery = filteredQuery + "&q=" + searchText;
         }
         if (beginDate!=null){
@@ -104,6 +98,10 @@ public class Filter{
         return filteredQuery;
     }
 
+    /**
+     * Formats begin date for API Call
+     * @return
+     */
     public String getBeginDateFormatted() {
        String reformattedDate="yyyyMMdd";
         System.out.println("DEBUGGY date original: " + getBeginDate());
@@ -126,6 +124,10 @@ public class Filter{
         return reformattedDate;
     }
 
+    /**
+     * Formats Sort By for API Call
+     * @return
+     */
     public String getSortByFormatted() {
         if (sortBy !=null){
             return sortBy.toLowerCase();
@@ -133,6 +135,10 @@ public class Filter{
         return "oldest";
     }
 
+    /**
+     * Formats news desk field for API Call
+     * @return
+     */
     public String getNewsDeskFormatted() {
         String formattedNewsDesk = "(";
 
@@ -147,16 +153,5 @@ public class Filter{
         }
         return formattedNewsDesk + ")";
     }
-
-
-//    public Filter(String beginDate, String sortBy, String newsDeskValues, boolean newsdeskArts, boolean newsdeskFashionStyle, boolean newsdeskSports){
-//        super();
-//        this.beginDate = beginDate;
-//        this.sortBy = sortBy;
-//        this.newsdeskArts = newsdeskArts;
-//        this.newsdeskFashionStyle = newsdeskFashionStyle;
-//        this.newsdeskSports = newsdeskSports;
-//    }
-
 
 }

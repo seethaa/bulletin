@@ -20,11 +20,11 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-* [ ] Implements robust error handling, [check if internet is available](http://guides.codepath.com/android/Sending-and-Managing-Network-Requests#checking-for-network-connectivity), handle error cases, network failures
+* [x] Implements robust error handling, [check if internet is available](http://guides.codepath.com/android/Sending-and-Managing-Network-Requests#checking-for-network-connectivity), handle error cases, network failures
 * [x] Used the **ActionBar SearchView** or custom layout as the query box instead of an EditText
 * [x] User can **share an article link** to their friends or email it to themselves
 * [x] Replaced Filter Settings Activity with a lightweight modal overlay
-* [ ] Improved the user interface and experiment with image assets and/or styling and coloring
+* [x] Improved the user interface and experiment with image assets and/or styling and coloring
 
 The following **bonus** features are implemented:
 
@@ -43,6 +43,7 @@ The following **additional** features are implemented:
 
 * [x] Used SharedPreferences to persist filter preferences across sessions.
 * [x] Auto-populates subject as headline of the news article when sharing link
+* [x] User is limited to selecting only past dates in DatePicker
 
 ## Video Walkthrough
 
@@ -59,8 +60,8 @@ Describe any challenges encountered while building the app.
 ## Open-source libraries used
 
 - [Android Async HTTP](https://github.com/loopj/android-async-http) - Simple asynchronous HTTP requests with JSON parsing
-- [Picasso](http://square.github.io/picasso/) - Image loading and caching library for Android
-- [SugarORM] ()
+- [Glide](http://square.github.io/picasso/) - Image loading and caching library for Android
+- [Glide] ()
 
 ## License
 

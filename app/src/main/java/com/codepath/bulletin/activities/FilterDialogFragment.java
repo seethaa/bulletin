@@ -1,4 +1,4 @@
-package com.codepath.bulletin;
+package com.codepath.bulletin.activities;
 
 /**
  * Created by seetha on 6/27/16.
@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
+import com.codepath.bulletin.R;
 import com.codepath.bulletin.models.Filter;
 
 import java.text.SimpleDateFormat;
@@ -31,28 +32,24 @@ import java.util.Calendar;
 import java.util.Locale;
 
 /**
- * Shows a DialogFragment with Filter feature
+ * Shows a DialogFragment with Filter feature. Allows user to edit begin date, sort by, and select
+ * news desk options. Filter ptions are saved and persist through sessions on save.
  */
 public class FilterDialogFragment extends DialogFragment implements OnClickListener {
-    EditText mEditTextDueDate;
 
-    Button mButtonSave;
-    Spinner mSpinnerSortBy;
-    CheckBox cbArts;
-    CheckBox cbFashionStyle;
-    CheckBox cbSports;
+    /* Layout components */
+    private EditText mEditTextBeginDate;
+    private Button mButtonSave;
+    private Spinner mSpinnerSortBy;
+    private CheckBox mCheckBoxArts;
+    private CheckBox mCheckBoxFashionStyle;
+    private CheckBox mCheckBoxSports;
+    private String mSpinnerText;
+    private String mBeginDateText;
+    private Calendar mCalendar;
+    private DatePickerDialog.OnDateSetListener mDateListener;
 
-    String mSpinnerText;
-
-    String mBeginDateText;
-
-
-    Calendar mCalendar;
-    DatePickerDialog.OnDateSetListener mDateListener;
-
-
-    private SharedPreferences mSettings;
-    private SharedPreferences.Editor editor;
+    /* SharedPreferences fields */
     private String beginDate;
     private String sortBy;
     private boolean newsdeskArts;
@@ -76,6 +73,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.dialog_filter, null);
 
+        //set up the views
         setupViews(layout);
 
         //set all listeners
@@ -85,10 +83,14 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
         mButtonSave = (Button) layout.findViewById(R.id.btnSave);
         mButtonSave.setOnClickListener(this);
 
-
         return layout;
     }
 
+    /**
+     * Sets up all views related to Filter Dialog Fragment
+     *
+     * @param layout current view layout
+     */
     private void setupViews(View layout) {
         //get list of shared preferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
@@ -98,20 +100,21 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
         newsdeskFashionStyle = settings.getBoolean(SearchActivity.NEWSDESK_FASHION_STYLE_STR, false);
         newsdeskSports = settings.getBoolean(SearchActivity.NEWSDESK_SPORTS_STR, false);
 
-        System.out.println("DEBUGGY: " + beginDate + " " + sortBy + newsdeskArts + " " + newsdeskFashionStyle + " " + newsdeskSports);
+        //debugging purposes
+        System.out.println("DEBUGGY: " + beginDate + " " + sortBy + " " + newsdeskArts + " " + newsdeskFashionStyle + " " + newsdeskSports);
 
         //get references to views
-        mEditTextDueDate = (EditText) layout.findViewById(R.id.etBeginDate);
-        cbArts = (CheckBox) layout.findViewById(R.id.cbArts);
-        cbFashionStyle = (CheckBox) layout.findViewById(R.id.cbFashionStyle);
-        cbSports = (CheckBox) layout.findViewById(R.id.cbSports);
+        mEditTextBeginDate = (EditText) layout.findViewById(R.id.etBeginDate);
+        mCheckBoxArts = (CheckBox) layout.findViewById(R.id.cbArts);
+        mCheckBoxFashionStyle = (CheckBox) layout.findViewById(R.id.cbFashionStyle);
+        mCheckBoxSports = (CheckBox) layout.findViewById(R.id.cbSports);
         mSpinnerSortBy = (Spinner) layout.findViewById(R.id.spinnerSort);
 
         //populate views with values from shared preferences
-        mEditTextDueDate.setText(beginDate);
-        cbArts.setChecked(newsdeskArts);
-        cbFashionStyle.setChecked(newsdeskFashionStyle);
-        cbSports.setChecked(newsdeskSports);
+        mEditTextBeginDate.setText(beginDate);
+        mCheckBoxArts.setChecked(newsdeskArts);
+        mCheckBoxFashionStyle.setChecked(newsdeskFashionStyle);
+        mCheckBoxSports.setChecked(newsdeskSports);
 
         //set spinner selection
         if (sortBy == null) {
@@ -126,10 +129,10 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
     }
 
     /**
-     * Sets up listener for News desk checkbox options
+     * Sets up listener for News desk checkbox options. Currently we only have Arts, Fashion/Style, and Sports
      */
     private void setNewsDeskListener() {
-        cbArts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mCheckBoxArts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -142,7 +145,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
             }
         });
 
-        cbFashionStyle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mCheckBoxFashionStyle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -151,11 +154,10 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
                     newsdeskFashionStyle = false;
                 }
                 Filter.getInstance().setNewsdeskFashionStyle(newsdeskFashionStyle);
-
             }
         });
 
-        cbSports.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mCheckBoxSports.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -193,7 +195,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
      * Sets up listener for Date field
      */
     private void setBeginDateListener() {
-        mEditTextDueDate.setOnClickListener(new OnClickListener() {
+        mEditTextBeginDate.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -213,7 +215,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
                         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
                         mBeginDateText = sdf.format(mCalendar.getTime());
-                        mEditTextDueDate.setText(mBeginDateText);
+                        mEditTextBeginDate.setText(mBeginDateText);
 
                         Filter.getInstance().setBeginDate(mBeginDateText);
 
@@ -225,8 +227,8 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
                 DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), mDateListener, mCalendar
                         .get(Calendar.YEAR), mCalendar.get(Calendar.MONTH),
                         mCalendar.get(Calendar.DAY_OF_MONTH));
-                //disable all past dates
-//                datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                //disable all future dates
+                datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() - 1000);
                 datePickerDialog.show();
 
 
@@ -245,7 +247,6 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
         }
     }
 
-
     /**
      * Dismisses fragment to go back to SearchActivity
      */
@@ -258,7 +259,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
     }
 
     /**
-     * Interface used as a listener for MainActivity when fragment is dismissed.
+     * Interface used as a listener for SearchActivity when fragment is dismissed.
      */
     public interface SetFilterDialogListener {
         void onFinishSetFilterDialog();

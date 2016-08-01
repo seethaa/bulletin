@@ -1,4 +1,4 @@
-package com.codepath.bulletin;
+package com.codepath.bulletin.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -24,6 +25,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.codepath.bulletin.utils.EndlessScrollListener;
+import com.codepath.bulletin.R;
 import com.codepath.bulletin.adapters.ArticleArrayAdapter;
 import com.codepath.bulletin.models.Article;
 import com.codepath.bulletin.models.Filter;
@@ -41,20 +44,18 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity implements FilterDialogFragment.SetFilterDialogListener {
-    EditText etQuery;
-    GridView gvResults;
-//    Button btnSearch;
-    NYTimesAPIClient mNYTimesAPIClient;
-    ArrayList<Article> mArticles;
-    ArticleArrayAdapter mArticleArrayAdapter;
-    String mSearchQuery;
+    static final String BEGIN_DATE_STR = "beginDate";
+    static final String SORT_BY_STR = "sortBy";
+    static final String NEWSDESK_ARTS_STR = "arts";
+    static final String NEWSDESK_FASHION_STYLE_STR = "fashionStyle";
+    static final String NEWSDESK_SPORTS_STR = "sports";
 
-     static String BEGIN_DATE_STR = "beginDate";
-     static String SORT_BY_STR = "sortBy";
-     static String NEWSDESK_ARTS_STR = "arts";
-     static String NEWSDESK_FASHION_STYLE_STR = "fashionStyle";
-     static String NEWSDESK_SPORTS_STR = "sports";
-
+    private GridView mGridViewResults;
+    private NYTimesAPIClient mNYTimesAPIClient;
+    private ArrayList<Article> mArticles;
+    private ArticleArrayAdapter mArticleArrayAdapter;
+    private String mSearchQuery;
+    private SwipeRefreshLayout mSwipeContainer;
 
 
     @Override
@@ -66,16 +67,17 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
 
     }
 
+    /**
+     * Lays out all views, attaches listener to gridview, and sets arrayadapter.
+     */
     private void setupViews() {
-//        etQuery = (EditText) findViewById(R.id.etQuery);
-        gvResults = (GridView) findViewById(R.id.gvResults);
-//        btnSearch = (Button) findViewById(R.id.btnSearch);
+        mGridViewResults = (GridView) findViewById(R.id.gvResults);
         mArticles = new ArrayList<>();
         mArticleArrayAdapter = new ArticleArrayAdapter(this, mArticles);
-        gvResults.setAdapter(mArticleArrayAdapter);
+        mGridViewResults.setAdapter(mArticleArrayAdapter);
 
-        //hock up listener for grid click
-        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        //hook up listener for grid click
+        mGridViewResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 //create an intent to display the article
@@ -93,7 +95,8 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
             }
         });
 
-        gvResults.setOnScrollListener(new EndlessScrollListener() {
+        //set on scroll listener for infinite scrolling
+        mGridViewResults.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
                 // Triggered only when new data needs to be appended to the list
@@ -104,18 +107,23 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
             }
         });
 
-        fetchFilteredArticles(mSearchQuery);
-
+        //fetch initial articles with no search text
+        fetchFilteredArticles("");
 
     }
 
+    /**
+     * Used for infinite scrolling
+     *
+     * @param page
+     */
     private void customLoadMoreDataFromApi(int page) {
         // This method probably sends out a network request and appends new data items to your adapter.
         // Use the offset value and add it as a parameter to your API request to retrieve paginated data.
         // Deserialize API response and then construct new objects to append to the adapter
 
         System.out.println("DEBUGGY PAGE " + page);
-        fetchFilteredArticlesByPage(mSearchQuery,page);
+        fetchFilteredArticlesByPage(mSearchQuery, page);
 
     }
 
@@ -139,22 +147,22 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
 
         // Expand the search view and request focus
         searchItem.expandActionView();
+        searchView.setQuery("", false);
+        searchView.setIconifiedByDefault(true);
+        searchView.isFocusableInTouchMode();
         searchView.requestFocus();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
 
-                //check if there are any filters set:
+                // clear existing view and perform query here
+                mSearchQuery = query;
+                refreshItems();
 
-                    // clear existing view and perform query here
-                    mSearchQuery = query;
-                   refreshItems();
-//                    System.out.println("DEBUGGY TIME LOTSA TIMES");
-
-                    // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                    // see https://code.google.com/p/android/issues/detail?id=24599
-                    searchView.clearFocus();
+                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
+                // see https://code.google.com/p/android/issues/detail?id=24599
+                searchView.clearFocus();
 
 
                 return true;
@@ -169,33 +177,24 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Checks if network is available and if device is online. If connected, it fetches articles based on search query.
+     */
     private void refreshItems() {
 
         if (isNetworkAvailable() && isOnline()) {
             mArticles.clear();
             mArticleArrayAdapter.notifyDataSetChanged();
             fetchFilteredArticles(mSearchQuery);
-        }
-        else{
+        } else {
             callNetworkDialog();
 
-//            new AlertDialog.Builder(getApplicationContext())
-//                    .setTitle("No Connection Available")
-//                    .setMessage("Please check your network connection!")
-//                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            // continue with delete
-//                        }
-//                    })
-//                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                    .show();
         }
     }
 
 
     /**
      * Called when dialogfragment is finished
-     *
      */
     @Override
     public void onFinishSetFilterDialog() {
@@ -218,6 +217,11 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
 
     }
 
+    /**
+     * Checks if an active network is available
+     *
+     * @return true if network is available, false otherwise
+     */
     private Boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -225,25 +229,32 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 
+    /**
+     * Checks if device is connected to the internet
+     *
+     * @return true if device is connected, false otherwise
+     */
     public boolean isOnline() {
         Runtime runtime = Runtime.getRuntime();
         try {
             Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
+            int exitValue = ipProcess.waitFor();
             return (exitValue == 0);
-        } catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
     /**
-     * Method to fetch updated data and refresh the listview. This method creates a new NYTimesAPIClient and
-     * makes HTTPRequest to get a list of currently playing movies.
-     *
+     * Method to fetch updated data and refresh the gridview. This method creates a new NYTimesAPIClient and
+     * makes HTTPRequest to get a list of articles based on the string query.
      */
     private void fetchFilteredArticles(String query) {
 
-        if(isOnline() && isNetworkAvailable()) {
+        if (isOnline() && isNetworkAvailable()) {
             //newsDesk is comma separated list of news desk values
             mNYTimesAPIClient = new NYTimesAPIClient();
 //        String query = Filter.getInstance().getFilteredQuery();
@@ -256,12 +267,8 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
                         //get all results
                         articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
                         Log.d("DEBUG", response.toString());
-                        //mArticles.clear(); //clear existing items from list
                         mArticleArrayAdapter.addAll(Article.fromJSONArray(articleJsonResults)); //add all items to list
                         Log.d("DEBUG", mArticles.toString());
-                        //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
-//                    printAllMovies(mMoviesArrayList); //debugging purposes
-//                    mSwipeContainer.setRefreshing(false);
 
 
                     } catch (JSONException e) {
@@ -276,25 +283,34 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
                 }
 
             });
-        }
-        else{
+        } else {
             callNetworkDialog();
         }
 
     }
 
+    /**
+     * Alert user to connect to network
+     */
     private void callNetworkDialog() {
 
         AlertDialog.Builder alert = new AlertDialog.Builder(SearchActivity.this);
         alert.setTitle("No Connection Available");
         alert.setMessage("Please check your network connection, and try again!");
-        alert.setPositiveButton("OK",null);
+        alert.setPositiveButton("OK", null);
         alert.show();
     }
 
+    /**
+     * Get filtered articles by page.
+     * Uses NYTimesAPIClient and makes network call with search query and page number
+     *
+     * @param query
+     * @param page
+     */
     private void fetchFilteredArticlesByPage(String query, int page) {
 
-        if(isOnline() && isNetworkAvailable()) {
+        if (isOnline() && isNetworkAvailable()) {
 
             //newsDesk is comma separated list of news desk values
             mNYTimesAPIClient = new NYTimesAPIClient();
@@ -334,54 +350,18 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
                 }
 
             });
-        }
-        else{
+        } else {//not connected
             callNetworkDialog();
         }
 
-
     }
-        /**
-         * Method to fetch updated data and refresh the listview. This method creates a new NYTimesAPIClient and
-         * makes HTTPRequest to get a list of currently playing movies.
-         *
-         */
-//    private void fetchAllArticles(String query) {
-//        mNYTimesAPIClient = new NYTimesAPIClient();
-//        mNYTimesAPIClient.getTestArticles( new JsonHttpResponseHandler() {
-//            @Override
-//            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-//                Log.d("DEBUG", response.toString());
-//                JSONArray articleJsonResults = null;
-//
-//                try {
-//                    //get all results
-//                    articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-//                    Log.d("DEBUG", response.toString());
-//                    //mArticles.clear(); //clear existing items from list
-//                    mArticleArrayAdapter.addAll(Article.fromJSONArray(articleJsonResults)); //add all items to list
-//                    Log.d("DEBUG", mArticles.toString());
-//                    //mArticleArrayAdapter.notifyDataSetChanged(); //notify adapter
-////                    printAllMovies(mMoviesArrayList); //debugging purposes
-////                    mSwipeContainer.setRefreshing(false);
-//
-//
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//        });
-//
-//
-//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle item selection
         switch (item.getItemId()) {
             case R.id.action_filter:
-                showEditDialog();
+                showFilterDialog();
                 // Handle this selection
                 return true;
             default:
@@ -389,11 +369,15 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         }
     }
 
-    private void showEditDialog() {
+    /**
+     * Calls Filter Dialog Fragment
+     */
+    private void showFilterDialog() {
         FragmentManager fm = getSupportFragmentManager();
         FilterDialogFragment editFilterDialogFragment = newInstance();
         editFilterDialogFragment.show(fm, "dialog_filter");
     }
+
     /**
      * Used for creating FilterDialogFragment and binding arguments
      *
@@ -404,8 +388,4 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         return f;
     }
 
-//    @Override
-//    public boolean onLoadMore(int page, int totalItemsCount) {
-//        return false;
-//    }
 }

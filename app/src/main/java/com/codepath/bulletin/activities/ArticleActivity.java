@@ -1,4 +1,4 @@
-package com.codepath.bulletin;
+package com.codepath.bulletin.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,22 +10,27 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.codepath.bulletin.R;
 import com.codepath.bulletin.models.Article;
 
 import org.parceler.Parcels;
 
+/**
+ * ArticleActivity shows details when an mArticle is selected in SearchActivity. User sees a WebView of the mArticle,
+ * and an option to share the link using ShareActionProvider.
+ */
 public class ArticleActivity extends AppCompatActivity {
 
-    private ShareActionProvider miShareAction;
-    private Intent shareIntent;
-    private Article article;
+    private ShareActionProvider mShareAction;
+    private Intent mShareIntent;
+    private Article mArticle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article);
 
-        article = (Article) Parcels.unwrap(getIntent().getParcelableExtra("article"));
+        mArticle = (Article) Parcels.unwrap(getIntent().getParcelableExtra("mArticle"));
 
         WebView webView = (WebView) findViewById(R.id.wvArticle);
 
@@ -34,33 +39,34 @@ public class ArticleActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
-                // Setup share intent now that image has loaded
+                // Setup share intent now that web view has loaded
                 prepareShareIntent();
                 attachShareIntentAction();
 
                 return true;
             }
         });
-        webView.loadUrl(article.getWebURL());
+        webView.loadUrl(mArticle.getWebURL());
     }
 
-    // Gets the image URI and setup the associated share intent to hook into the provider
+    /**
+     * Gets the mArticle headline and web URL and setup the associated share intent to hook into the provider
+     */
     public void prepareShareIntent() {
-        // Fetch Bitmap Uri locally
-//        ImageView ivImage = (ImageView) findViewById(R.id.ivBookCover);
-//        Uri bmpUri = getLocalBitmapUri(ivImage); // see previous remote images section
-        // Construct share intent as described above based on bitmap
-        shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, article.getHeadline());
-        shareIntent.putExtra(Intent.EXTRA_TEXT, article.getWebURL());
-        shareIntent.setType("text/plain");
+        // Construct share intent
+        mShareIntent = new Intent();
+        mShareIntent.setAction(Intent.ACTION_SEND);
+        mShareIntent.putExtra(Intent.EXTRA_SUBJECT, mArticle.getHeadline());
+        mShareIntent.putExtra(Intent.EXTRA_TEXT, mArticle.getWebURL());
+        mShareIntent.setType("text/plain");
     }
 
-    // Attaches the share intent to the share menu item provider
+    /**
+     *  Attaches the share intent to the share menu item provider
+     */
     public void attachShareIntentAction() {
-        if (miShareAction != null && shareIntent != null)
-            miShareAction.setShareIntent(shareIntent);
+        if (mShareAction != null && mShareIntent != null)
+            mShareAction.setShareIntent(mShareIntent);
     }
 
 
@@ -71,9 +77,8 @@ public class ArticleActivity extends AppCompatActivity {
         // Locate MenuItem with ShareActionProvider
         MenuItem item = menu.findItem(R.id.menu_item_share);
         // Fetch reference to the share action provider
-        miShareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        mShareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
         attachShareIntentAction(); // call here in case this method fires second
-
 
         // Return true to display menu
         return true;

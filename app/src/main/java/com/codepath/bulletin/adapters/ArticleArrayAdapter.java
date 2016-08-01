@@ -16,11 +16,12 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 /**
+ * ArticleArrayAdapter handles populating Gridview handling Article items
  * Created by seetha on 7/26/16.
  */
 public class ArticleArrayAdapter extends ArrayAdapter<Article> {
 
-    public ArticleArrayAdapter(Context context, List<Article> articles){
+    public ArticleArrayAdapter(Context context, List<Article> articles) {
         super(context, android.R.layout.simple_list_item_1, articles);
     }
 
@@ -31,7 +32,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
 
         //check if existing view is being reused/recycled
         //not using recycled view-->inflate the layout
-        if (convertView == null){
+        if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.item_article_result, parent, false);
         }
@@ -48,7 +49,7 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         //remotely download image in the background
         String thumbnail = article.getThumbNail();
         //check if thumbnail is empty since NYTimesAPI sometimes returns ""
-        if (!TextUtils.isEmpty(thumbnail)){
+        if (!TextUtils.isEmpty(thumbnail)) {
             Picasso.with(getContext()).load(thumbnail).fit().centerCrop().placeholder(R.drawable.nytlogovert).into(imageView);
 
         }

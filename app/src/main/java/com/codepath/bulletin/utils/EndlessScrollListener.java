@@ -1,10 +1,12 @@
-package com.codepath.bulletin;
+package com.codepath.bulletin.utils;
 
 import android.support.v7.app.AppCompatActivity;
 import android.widget.AbsListView;
 
 /**
- * Created by seetha on 7/31/16.
+ * EndlessScrollListener recognizes scroll state and implements the OnScrollListener
+ * This abstract class is copied from Codepath guide:
+ * http://guides.codepath.com/android/Endless-Scrolling-with-AdapterViews-and-RecyclerView
  */
 public abstract class EndlessScrollListener extends AppCompatActivity implements AbsListView.OnScrollListener {
     // The minimum number of items to have below your current scroll position
@@ -36,14 +38,15 @@ public abstract class EndlessScrollListener extends AppCompatActivity implements
     // We are given a few useful parameters to help us work out if we need to load some more data,
     // but first we check if we are waiting for the previous load to finish.
     @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-    {
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         // If the total item count is zero and the previous isn't, assume the
         // list is invalidated and should be reset back to initial state
         if (totalItemCount < previousTotalItemCount) {
             this.currentPage = this.startingPageIndex;
             this.previousTotalItemCount = totalItemCount;
-            if (totalItemCount == 0) { this.loading = true; }
+            if (totalItemCount == 0) {
+                this.loading = true;
+            }
         }
         // If it's still loading, we check to see if the dataset count has
         // changed, if so we conclude it has finished loading and update the current page
@@ -57,7 +60,7 @@ public abstract class EndlessScrollListener extends AppCompatActivity implements
         // If it isn't currently loading, we check to see if we have breached
         // the visibleThreshold and need to reload more data.
         // If we do need to reload some more data, we execute onLoadMore to fetch the data.
-        if (!loading && (firstVisibleItem + visibleItemCount + visibleThreshold) >= totalItemCount ) {
+        if (!loading && (firstVisibleItem + visibleItemCount + visibleThreshold) >= totalItemCount) {
             loading = onLoadMore(currentPage + 1, totalItemCount);
         }
     }
