@@ -20,9 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.codepath.bulletin.R;
 import com.codepath.bulletin.adapters.ArticleArrayAdapter;
@@ -30,6 +28,7 @@ import com.codepath.bulletin.models.Article;
 import com.codepath.bulletin.models.Filter;
 import com.codepath.bulletin.network.NYTimesAPIClient;
 import com.codepath.bulletin.utils.EndlessScrollListener;
+import com.etsy.android.grid.StaggeredGridView;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -51,7 +50,8 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
     static final String NEWSDESK_FASHION_STYLE_STR = "fashionStyle";
     static final String NEWSDESK_SPORTS_STR = "sports";
 
-    @BindView(R.id.gvResults) GridView mGridViewResults;
+    @BindView(R.id.gvResults)
+    StaggeredGridView mGridViewResults;
     private NYTimesAPIClient mNYTimesAPIClient;
     private ArrayList<Article> mArticles;
     private ArticleArrayAdapter mArticleArrayAdapter;
@@ -75,6 +75,8 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         mArticles = new ArrayList<>();
         mArticleArrayAdapter = new ArticleArrayAdapter(this, mArticles);
         mGridViewResults.setAdapter(mArticleArrayAdapter);
+
+        //styles for gridview
 
         //hook up listener for grid click
         mGridViewResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -122,7 +124,6 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
         // Use the offset value and add it as a parameter to your API request to retrieve paginated data.
         // Deserialize API response and then construct new objects to append to the adapter
 
-        System.out.println("DEBUGGY PAGE " + page);
         fetchFilteredArticlesByPage(mSearchQuery, page);
 
     }
@@ -198,8 +199,6 @@ public class SearchActivity extends AppCompatActivity implements FilterDialogFra
      */
     @Override
     public void onFinishSetFilterDialog() {
-        Toast.makeText(this, "Got here  " + Filter.getInstance().getBeginDate(), Toast.LENGTH_LONG).show();
-
 
         //get filter values with intents
         SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

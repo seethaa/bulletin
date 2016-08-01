@@ -118,14 +118,7 @@ public class FilterDialogFragment extends DialogFragment implements OnClickListe
         newsdeskSports = settings.getBoolean(SearchActivity.NEWSDESK_SPORTS_STR, false);
 
         //debugging purposes
-        System.out.println("DEBUGGY: " + beginDate + " " + sortBy + " " + newsdeskArts + " " + newsdeskFashionStyle + " " + newsdeskSports);
-
-        //get references to views
-//        mEditTextBeginDate = (EditText) layout.findViewById(R.id.etBeginDate);
-//        mCheckBoxArts = (CheckBox) layout.findViewById(R.id.cbArts);
-//        mCheckBoxFashionStyle = (CheckBox) layout.findViewById(R.id.cbFashionStyle);
-//        mCheckBoxSports = (CheckBox) layout.findViewById(R.id.cbSports);
-//        mSpinnerSortBy = (Spinner) layout.findViewById(R.id.spinnerSort);
+//        System.out.println("DEBUGGY: " + beginDate + " " + sortBy + " " + newsdeskArts + " " + newsdeskFashionStyle + " " + newsdeskSports);
 
         //populate views with values from shared preferences
         mEditTextBeginDate.setText(beginDate);

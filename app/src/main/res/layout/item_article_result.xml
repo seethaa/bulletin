@@ -16,7 +16,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/ivImage"
-        android:src="@drawable/nytlogosmall"
+        android:src="@drawable/nytlogosmaller"
         android:scaleType="center"
         android:layout_weight="1" />
 

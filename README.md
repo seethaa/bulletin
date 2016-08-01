@@ -44,12 +44,13 @@ The following **additional** features are implemented:
 * [x] Used SharedPreferences to persist filter preferences across sessions.
 * [x] Auto-populates subject as headline of the news article when sharing link
 * [x] User is limited to selecting only past dates in DatePicker
+* [x] Used AndroidStaggeredGrid to make UI better
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://i.imgur.com/0KR7n2D.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
@@ -63,6 +64,8 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 - [Glide](https://github.com/bumptech/glide) - Image loading and caching library for Android
 - [ButterKnife](http://jakewharton.github.io/butterknife/) - View injection library for Android
 - [Parceler](https://parceler.org/) - Android Parcelable code generator for Android
+- [AndroidStaggeredGrid](https://github.com/etsy/AndroidStaggeredGrid) - An Android staggered grid view which supports multiple columns with rows of varying sizes. Currently deprecated.
+
 ## License
 
     Copyright 2016 Seetha Annamraju

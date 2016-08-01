@@ -60,40 +60,14 @@ public class ArticleArrayAdapter extends ArrayAdapter<Article> {
         String thumbnail = article.getThumbNail();
         //check if thumbnail is empty since NYTimesAPI sometimes returns ""
         if (!TextUtils.isEmpty(thumbnail)) {
-            Glide.with(getContext()).load(thumbnail).centerCrop().placeholder(R.drawable.nytlogosmaller).into(holder.imageView);
+            Glide.with(getContext()).load(thumbnail).centerCrop().placeholder(R.drawable.nytlogooriginal).into(holder.imageView);
+
+        }
+        else{
+            Glide.with(getContext()).load(R.drawable.nytlogooriginal).centerCrop().placeholder(R.drawable.nytlogooriginal).into(holder.imageView);
 
         }
         return view;
     }
 
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        //get data item for position
-//        Article article = this.getItem(position);
-//
-//        //check if existing view is being reused/recycled
-//        //not using recycled view-->inflate the layout
-//        if (convertView == null) {
-//            LayoutInflater inflater = LayoutInflater.from(getContext());
-//            convertView = inflater.inflate(R.layout.item_article_result, parent, false);
-//        }
-//
-//        //find imageview
-//        ImageView imageView = (ImageView) convertView.findViewById(R.id.ivImage);
-//        //clear out recycled image from convertview from last time
-//        imageView.setImageResource(0);
-//
-//        TextView tvTitle = (TextView) convertView.findViewById(R.id.tvTitle);
-//        tvTitle.setText(article.getHeadline());
-//
-//        //populate thumbnail image
-//        //remotely download image in the background
-//        String thumbnail = article.getThumbNail();
-//        //check if thumbnail is empty since NYTimesAPI sometimes returns ""
-//        if (!TextUtils.isEmpty(thumbnail)) {
-//            Glide.with(getContext()).load(thumbnail).centerCrop().placeholder(R.drawable.nytlogovert).into(imageView);
-//
-//        }
-//        return convertView;
-//    }
 }

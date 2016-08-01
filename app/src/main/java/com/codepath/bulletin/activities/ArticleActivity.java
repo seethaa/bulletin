@@ -33,7 +33,6 @@ public class ArticleActivity extends AppCompatActivity {
         mArticle = (Article) Parcels.unwrap(getIntent().getParcelableExtra("article"));
 
         WebView webView = (WebView) findViewById(R.id.wvArticle);
-        System.out.println("DEBUGGY print article: " + mArticle.getHeadline() + " " + mArticle.getWebURL());
         webView.setWebViewClient(new WebViewClient(){
 
             @Override
